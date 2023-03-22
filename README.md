@@ -178,3 +178,9 @@ The final chunk describes the borders of the area.
 
 There will eventually be more things.
 
+### Menu
+
+The menus are drawn using the same principle as with the dialogue.
+
+Other than that, development is in-progress.
+
