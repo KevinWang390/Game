@@ -94,7 +94,7 @@ To address this, I added a blackout transition sequence to space changes. It has
 
 Here's a demo of all the things discussed so far.
 
-https://user-images.githubusercontent.com/103074297/226941834-5cc66eb1-412a-4e60-9a00-f9d9ae392e10.mp4
+https://user-images.githubusercontent.com/103074297/226948753-8cb0e03b-aea3-413f-a948-eb8d270930d6.mp4
 
 
 
