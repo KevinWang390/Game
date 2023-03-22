@@ -96,6 +96,39 @@ Here's a demo of all the things discussed so far.
 
 https://user-images.githubusercontent.com/103074297/226948753-8cb0e03b-aea3-413f-a948-eb8d270930d6.mp4
 
+### Dialogue
+
+Dialogue is triggered by pressing [E] while in contact with a Dialogue object (drawn in pink for now).
+[E] loads the next line or exits the dialogue if there are no more lines. [Q] exits the dialogue.
+
+Because the render target itself is transformed to center on the player, drawing the dialogue box using float literals would have it render on the wrong part of the screen.
+One option is to use the player's position and the "following area" to dynamically determine the appropriate coordinates. I did not do this.
+
+My solution is to buffer the transform applied to the render target, transform the render target with the identity matrix, draw the dialogue as normal, and finally restore the original transformation. Here is some example code showing how this can be done:
+
+```C++
+// N.B.: this is not what appears in the source code
+
+ID2D1_MATRIX_3x2_F * transform_buffer; //Direct2D uses matrices for transforms
+
+rtarget->getTransform(&transform_buffer) //load the current transform into transform_buffer
+rtarget->setTransform(D2D1::IdentityMatrix()); //use the identity transform
+
+/*
+* the render target is now in its "original" position
+* the dialogue can be drawn using float literals
+* with the expected outcome, regardless of player position
+*/
+
+rtarget->setTransform(transform_buffer) //restore the appropriate transform for the camera position
+```
+
+All of this happens within one cycle, i.e. between: ```rtarget->beginDraw()``` and ```rtarget->endDraw()```, so this process is invisible.
+
+Demo:
+
+https://user-images.githubusercontent.com/103074297/226950849-7caf5b58-ee91-4890-940f-25f705d49724.mp4
+
 
 
 
