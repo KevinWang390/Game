@@ -168,6 +168,7 @@ The next chunk determines entry points to other areas. It is formatted as such:
 	* There is no automated way to create two-way links between areas; it must be done individually for each. While this gives the programmer (me) much more flexibility, it is also error-prone.
 * the position that the player sprite will be taken to (two values)
 * the collision area of the entry point in the current area (four values)
+* whether or not the entry point triggers on contact or also requires pressing [E] (one value)
 
 The next chunk describes the dialogue:
 * the text file from which to load the dialogue
