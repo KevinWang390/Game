@@ -48,7 +48,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 }
 ```
 * param: hWnd -- the window that receives the message
-* param: message -- the message itself, i.e. a keystroke, lifting a key, clicking the exit button, etc.
+* param: message -- the message itself, e.g. a keystroke, lifting a key, clicking the exit button, etc.
 * param: wParam -- in the case of a keystroke, the Windows Virtual Key Code of that key
 * param: lParam -- miscellaneous information
 
@@ -71,7 +71,31 @@ Because keys are never held, WASD keystrokes change the velocity of the player r
 The Velocity class has separate x and y components defaulting to 0; if both components are nonzero, the speed is normalized.
 
 For example, WM_KEYDOWN on [D] increments the x component from 0 to 1. WM_KEYUP on [D] decrements the x component from 1 to 0.
-The opposite goes for [A], and the same setup goes for [W] and [S]. This works well when pressing multiple keys. Here's a demo:
+The opposite goes for [A], and the same setup goes for [W] and [S]. This works well when pressing multiple keys.
 
-https://user-images.githubusercontent.com/103074297/226933997-a2dea003-5b42-4d4d-bd41-632fd96ab857.mp4
+### Camera
+
+The camera is centered on the player sprite while the player sprite remains within the bounds of a "following area", which is just an invisible rectangle.
+The dimensions of the rectangle are specific to each space.
+Smaller spaces may have a rectangle of area 0, meaning that the camera will not move at all.
+
+The render target itself is transformed based on the position of the player.
+This leads to challenges when rendering overlays that look the same regardless of the player's location, such as menus, dialogue, etc.
+However, transforming a geometry requires creating a new ID2D1TransformedGeometry for each loaded geometry with every frame, which I wanted to avoid. 
+
+### Space entry
+
+The overworld is segmented into discrete chunks that are linked to each other.
+This is to improve performance by reducing the number of objects loaded per tick (I am unsure of Direct2D's performance in relation to Win32).
+This is also to make the world more easily digestible and less overwhelming to the player.
+
+When switching spaces, the player sprite's location is changed, a new space is loaded, and the camera is adjusted. This causes a visual hiccup in the graphics.
+To address this, I added a blackout transition sequence to space changes. It has the added bonus of making the switch easier on the eyes.
+
+Here's a demo of all the things discussed so far.
+
+https://user-images.githubusercontent.com/103074297/226941834-5cc66eb1-412a-4e60-9a00-f9d9ae392e10.mp4
+
+
+
 
