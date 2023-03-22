@@ -63,3 +63,15 @@ void input_start(WPARAM wParam); //triggered upon WM_KEYDOWN
 void input_end(WPARAM wParam); //triggered upon WM_KEYUP
 ```
 This allows the program to be implemented independently of system or hardware constraints and specificities.
+
+### Player Movement
+
+Player sprite movement is 8-directional and controlled by WASD.
+Because keys are never held, WASD keystrokes change the velocity of the player rather than the position.
+The Velocity class has separate x and y components defaulting to 0; if both components are nonzero, the speed is normalized.
+
+For example, WM_KEYDOWN on [D] increments the x component from 0 to 1. WM_KEYUP on [D] decrements the x component from 1 to 0.
+The opposite goes for [A], and the same setup goes for [W] and [S]. This works well when pressing multiple keys. Here's a demo:
+
+https://user-images.githubusercontent.com/103074297/226933997-a2dea003-5b42-4d4d-bd41-632fd96ab857.mp4
+
