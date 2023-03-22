@@ -83,14 +83,17 @@ The render target itself is transformed based on the position of the player.
 This leads to challenges when rendering overlays that look the same regardless of the player's location, such as menus, dialogue, etc.
 However, transforming a geometry requires creating a new ID2D1TransformedGeometry for each loaded geometry with every frame, which I wanted to avoid. 
 
-### Space entry
+### Bounds Entry
 
-The overworld is segmented into discrete chunks that are linked to each other.
+The overworld is segmented into discrete bounds that are linked to each other.
 This is to improve performance by reducing the number of objects loaded per tick (I am unsure of Direct2D's performance in relation to Win32).
 This is also to make the world more easily digestible and less overwhelming to the player.
 
-When switching spaces, the player sprite's location is changed, a new space is loaded, and the camera is adjusted. This causes a visual hiccup in the graphics.
-To address this, I added a blackout transition sequence to space changes. It has the added bonus of making the switch easier on the eyes.
+When switching areas, the player sprite's location is changed, a new area is loaded, and the camera is adjusted. This causes a visual hiccup in the graphics.
+To address this, I added a blackout transition sequence to area changes. It has the added bonus of making the switch easier on the eyes.
+
+Each bounds object as an integer ID. In the class constructor, the object uses its ID to register itself to a static ```std::unordered_map<int,Bounds*>```.
+This makes it easier to load any area.
 
 Here's a demo of all the things discussed so far.
 
@@ -129,6 +132,48 @@ Demo:
 
 https://user-images.githubusercontent.com/103074297/226950849-7caf5b58-ee91-4890-940f-25f705d49724.mp4
 
+### Putting it Together
 
+For my own convenience more than anything else, each space (I called them "bounds" for some reason) is loaded from a text file at the beginning of the program.
+The files are of this form:
 
+```
+200.0
+600.0
+150.0
+450.0
+
+2
+1 300.0 400.0 620.0 280.0 670.0 330.0 0
+2 200.0 280.0 50.0 0.0 170.0 30.0 1
+
+1
+dialogue00.txt 150.0 460.0 180.0 490.0
+
+50.0 0.0
+50.0 550.0
+550.0 550.0
+550.0 400.0
+720.0 400.0
+720.0 70.0
+170.0 70.0
+170.0 0.0
+```
+
+The first four lines determine the "following area" of the camera.
+
+The next chunk determines entry points to other areas. It is formatted as such:
+* the ID of the area to go to (one value)
+	* For some reason, the ID of *this* bounds object isn't passed in the text file. If you're still reading this, know that I plan to fix this.
+	* There is no automated way to create two-way links between areas; it must be done individually for each. While this gives the programmer (me) much more flexibility, it is also error-prone.
+* the position that the player sprite will be taken to (two values)
+* the collision area of the entry point in the current area (four values)
+
+The next chunk describes the dialogue:
+* the text file from which to load the dialogue
+* the collision area of the dialogue object
+
+The final chunk describes the borders of the area.
+
+There will eventually be more things.
 
