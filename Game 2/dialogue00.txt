@@ -1,0 +1,5 @@
+this is some text loaded from a text file. press [E] to proceed.
+great! it seems to work.
+alternatively, press [Q] to exit the dialogue prematurely.
+eventually, this will also show the speaker.
+in any case, I hope the dialogue exits properly.
