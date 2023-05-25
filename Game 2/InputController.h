@@ -30,7 +30,7 @@ public:
 		for (auto m : members) m->input_start(wParam);
 	}
 	static int get_mode() { return mode; }
-	static void change_mode(WPARAM wParam) { // make static?
+	static void change_mode(WPARAM wParam) {
 		if (mode_keys.find(wParam) == mode_keys.end()) return;
 		if (mode == 0) mode = (int)wParam;
 		else if (mode == wParam) mode = 0;

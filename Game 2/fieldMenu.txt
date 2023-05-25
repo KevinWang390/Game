@@ -1,0 +1,19 @@
+root 4
+link ... ... inventory
+link ... ... status
+link ... ... settings
+link ... ... game
+
+<number of additional pages>
+
+inventory 3
+link ... ... consumable
+link ... ... equipment
+link ... ... key
+
+key 1
+table ... ... <some way to link runtime inventory>
+
+status 4
+tab ...
+...

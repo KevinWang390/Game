@@ -37,7 +37,7 @@ Dialogue* dialogue_master;
 void setup() {
 	player = new Player();
 
-	menu = new Menu();
+	menu = get_field_menu();
 
 	bounds = new Bounds(0, "bounds.txt");
 	bounds1 = new Bounds(1, "bounds1.txt");
