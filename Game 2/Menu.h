@@ -14,7 +14,6 @@ class Overlay;
 class Menu;
 
 class PageElement {
-	int type;
 	bool selected;
 	float x, y;
 	std::string name;
@@ -24,32 +23,31 @@ class PageElement {
 	friend class Link;
 public:
 	PageElement() {
-		type = -1;
 		selected = false;
 		x = y = 0.0f;
 		name = "";
 	};
-	PageElement(int t, float xpos, float ypos, std::string n) {
-		type = t;
+	PageElement(float xpos, float ypos, std::string n) {
 		selected = false;
 		x = xpos; y = ypos;
 		name = n;
 	};
-	int what_type() { return type; }
+	virtual int what_type() = 0;
 	virtual void* click(WPARAM wParam) = 0;
 	virtual void draw() = 0; // different based off value of selected
 };
 
 class Link : public PageElement {
-	std::string target;
+	Page* target;
 public:
 	Link() {
-		target = "";
+		target = nullptr;
 	}
-	Link(std::string t, float xpos, float ypos, std::string n) : PageElement(LINK, xpos, ypos, n) {
-		target = t;
+	Link(Page* p, float xpos, float ypos, std::string n) : PageElement(xpos, ypos, n) {
+		target = p;
 	}
-	void* click(WPARAM wParam) override { return (void*)&target; }
+	int what_type() override { return LINK; }
+	void* click(WPARAM wParam) override { return (void*)target; }
 	void draw() override {
 		Graphics::rtarget->FillRoundedRectangle(D2D1::RoundedRect(
 			D2D1::RectF(x, y, x + 100.0f, y + 50.0f), 10.0f, 10.0f),
@@ -119,15 +117,20 @@ public:
 		elements = display = {};
 		overlay = nullptr;
 	}
-	Page(std::string n, int id, std::vector<PageElement*>& e, std::vector<PageElement*>& d, Overlay* o) {
+	Page(std::string n, int id, Overlay* o) {
 		name = n;
 		ID = id;
 		element_idx = 0;
-		elements = e;
-		display = d;
+		elements = display = {};
 		overlay = o;
 		if (elements.size()) currentElement = elements[0];
 		else currentElement = nullptr;
+	}
+	void add_element(PageElement* e) {
+		elements.push_back(e);
+	}
+	void add_display(PageElement* d) {
+		display.push_back(d);
 	}
 	void drawPage() {
 		Graphics::rtarget->FillRoundedRectangle(
@@ -153,7 +156,7 @@ public:
 
 class Menu : public Inputable {
 	D2D1_MATRIX_3X2_F transform;
-	std::unordered_map<std::string, Page*> page_table;
+	std::unordered_map<std::string, Page*> page_table; // TODO: maybe don't need this
 	Page* currentPage; // current page to be displayed
 	Page* entryPage; // initial page upon menu activation
 	std::vector<Page*> backtrace; // stack structure for backing out of pages
@@ -194,7 +197,7 @@ public:
 	}
 	void input_start(WPARAM wParam) {
 		if (InputController::get_mode() != VK_TAB) return;
-		//int type = currentPage->currentElement->what_type(); // TODO: this still doesn't work
+		int type;
 		switch (wParam) {
 		case VK_TAB:
 			backtrace.clear();
@@ -204,11 +207,14 @@ public:
 			back_out();
 			break;
 		case VK_E:
-			//if (type == LINK) enter_page((Page*)(currentPage->currentElement->click(-1)));
+			if (currentPage->elements.empty()) break;
+			type = currentPage->currentElement->what_type();
+			if (type == LINK) enter_page((Page*)(currentPage->currentElement->click(-1))); // TODO: unfuck this
 			break;
 		case VK_W:
 		case VK_S:
 			currentPage->move_idx(wParam);
+			break;
 		default:
 			break;
 		}
@@ -218,12 +224,11 @@ public:
 
 Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called in run() in scripts.h
 	Menu* m = new Menu();
-	std::vector<PageElement*> p_elist;
-	std::vector<PageElement*> p_dlist;
-	p_elist.push_back(new Link("none", 30.0f, 30.0f, "dummy"));
-	p_elist.push_back(new Link("none", 30.0f, 100.0f, "dummy"));
-	p_elist.push_back(new Link("none", 30.0f, 170.0f, "dummy"));
-	Page* p = new Page("entry", 0, p_elist, p_dlist, nullptr);
+	Page* p = new Page("entry", 0, nullptr);
+	Page* p2 = new Page("unnecessary", 1, nullptr);
+	p->add_element(new Link(p2, 30.0f, 30.0f, "dummy"));
+	p->add_element(new Link(nullptr, 30.0f, 100.0f, "dummy"));
+	p->add_element(new Link(nullptr, 30.0f, 170.0f, "dummy"));
 	m->add_page(p, true);
 	return m;
 }
