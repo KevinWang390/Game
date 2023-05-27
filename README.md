@@ -180,7 +180,9 @@ There will eventually be more things.
 
 ### Menu
 
-The menus are drawn using the same principle as with the dialogue.
+The menus are drawn using the same principle as with the dialogue with respect to preserving the camera position.
 
-Other than that, development is in-progress.
+Other than that, development is in-progress. Because I did not plan out the entire game before I started coding, I don't actually know *exactly* what will be required of my menu structure.
+
+Therefore, I plan on making the menu system more robust than I think it will need to be. I would rather have an overbuilt menu system rather than realize that what I have isn't enough 75% of the way through the development process when I get a new idea.
 
