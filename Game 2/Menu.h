@@ -9,6 +9,8 @@
 
 #define LINK 1
 
+// TODO: UI bitmaps will be global values, classes will draw them, will need function to load from file
+
 class Page;
 class Overlay;
 class Menu;
@@ -33,7 +35,7 @@ public:
 		name = n;
 	};
 	virtual int what_type() = 0;
-	virtual void* click(WPARAM wParam) = 0;
+	virtual void* click() = 0;
 	virtual void draw() = 0; // different based off value of selected
 };
 
@@ -47,7 +49,7 @@ public:
 		target = p;
 	}
 	int what_type() override { return LINK; }
-	void* click(WPARAM wParam) override { return (void*)target; }
+	void* click() override { return (void*)target; }
 	void draw() override {
 		Graphics::rtarget->FillRoundedRectangle(D2D1::RoundedRect(
 			D2D1::RectF(x, y, x + 100.0f, y + 50.0f), 10.0f, 10.0f),
@@ -155,6 +157,7 @@ public:
 };
 
 class Menu : public Inputable {
+	WPARAM mode;
 	D2D1_MATRIX_3X2_F transform;
 	std::unordered_map<std::string, Page*> page_table; // TODO: maybe don't need this
 	Page* currentPage; // current page to be displayed
@@ -162,6 +165,12 @@ class Menu : public Inputable {
 	std::vector<Page*> backtrace; // stack structure for backing out of pages
 public:
 	Menu() {
+		mode = 0;
+		transform = D2D1::IdentityMatrix();
+		entryPage = currentPage = nullptr;
+	}
+	Menu(WPARAM m) {
+		mode = m;
 		transform = D2D1::IdentityMatrix();
 		page_table = {};
 		entryPage = currentPage = nullptr;
@@ -189,14 +198,14 @@ public:
 		}
 	}
 	void draw() {
-		if (InputController::get_mode() != VK_TAB) return;
+		if (InputController::get_mode() != mode) return;
 		Graphics::rtarget->GetTransform(&transform);
 		Graphics::rtarget->SetTransform(D2D1::IdentityMatrix());
 		if (currentPage) currentPage->drawPage();
 		Graphics::rtarget->SetTransform(transform);
 	}
 	void input_start(WPARAM wParam) {
-		if (InputController::get_mode() != VK_TAB) return;
+		if (InputController::get_mode() != mode) return;
 		int type;
 		switch (wParam) {
 		case VK_TAB:
@@ -209,7 +218,7 @@ public:
 		case VK_E:
 			if (currentPage->elements.empty()) break;
 			type = currentPage->currentElement->what_type();
-			if (type == LINK) enter_page((Page*)(currentPage->currentElement->click(-1))); // TODO: unfuck this
+			if (type == LINK) enter_page((Page*)(currentPage->currentElement->click()));
 			break;
 		case VK_W:
 		case VK_S:
@@ -223,7 +232,7 @@ public:
 };
 
 Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called in run() in scripts.h
-	Menu* m = new Menu();
+	Menu* m = new Menu(VK_TAB);
 	Page* p = new Page("entry", 0, nullptr);
 	Page* p2 = new Page("unnecessary", 1, nullptr);
 	p->add_element(new Link(p2, 30.0f, 30.0f, "dummy"));

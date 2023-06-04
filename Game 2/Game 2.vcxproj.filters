@@ -54,6 +54,9 @@
     <ClInclude Include="Battle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Inventory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -77,6 +80,9 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="battle00.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="inventory.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

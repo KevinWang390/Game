@@ -8,6 +8,7 @@
 #include "Entry.h"
 #include "Transition.h"
 #include "Dialogue.h"
+#include "Inventory.h"
 
 Player* Player::instance = nullptr;
 
@@ -33,6 +34,8 @@ Bounds* bounds1;
 Bounds* bounds2;
 
 Dialogue* dialogue_master;
+
+std::unordered_map<unsigned int, Inventory*> Inventory::inventories;
 
 void setup() {
 	player = new Player();
@@ -61,7 +64,11 @@ void setup() {
 	Graphics::setSolidColorBrush(0.0, 1.0, 1.0, 1.0, "teal");
 
 
-	Graphics::setTextFormat(L"Arial", 20, "font");
+	Graphics::setTextFormat(L"Consolas", 20, "font");
+
+	// testing this out
+	Inventory::unpickle();
+	Inventory::pickle();
 }
 
 void run() {

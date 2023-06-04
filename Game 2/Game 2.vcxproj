@@ -147,6 +147,7 @@
     <ClInclude Include="Battle.h" />
     <ClInclude Include="Inputable.h" />
     <ClInclude Include="InputController.h" />
+    <ClInclude Include="Inventory.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Position.h" />
@@ -164,6 +165,7 @@
     <Text Include="bounds1.txt" />
     <Text Include="bounds2.txt" />
     <Text Include="dialogue00.txt" />
+    <Text Include="inventory.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

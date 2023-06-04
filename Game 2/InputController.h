@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <unordered_set>
-#include<Windows.h>
+#include <Windows.h>
 
 #include "Inputable.h"
 
