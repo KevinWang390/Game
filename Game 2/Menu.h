@@ -6,10 +6,12 @@
 
 #include "Graphics.h"
 #include "Inputable.h"
+#include "Inventory.h"
 
 #define LINK 1
 
 // TODO: UI bitmaps will be global values, classes will draw them, will need function to load from file
+ID2D1Bitmap* page_base;
 
 class Page;
 class Overlay;
@@ -65,12 +67,13 @@ class Button : public PageElement {}; // will likely need to invoke some other f
 
 class Tab : public PageElement {}; // TODO: decide if I need this at all
 
-class Table : public PageElement {};
+// table for the various inventories
+class Table : public PageElement {}; // TODO: maybe this should be a Page?
 
 // Textbox
 std::unordered_map<std::string, std::string> master_text; // stores text fields, will need to be pickled and unpickled
 
-class Textbox : public PageElement {
+class Textbox : public PageElement { // TODO: implement this
 	std::string label;
 	std::string value;
 	static std::vector<Textbox*> textboxes;
@@ -135,9 +138,12 @@ public:
 		display.push_back(d);
 	}
 	void drawPage() {
-		Graphics::rtarget->FillRoundedRectangle(
-			D2D1::RoundedRect(D2D1::RectF(15.0f, 15.0f, 785.0f, 585.0f), 10.0f, 10.0f),
-			Graphics::getSolidColorBrush("teal"));
+		Graphics::rtarget->DrawBitmap(
+			page_base,
+			D2D1::RectF(0.0f, 0.0f, 800.0f, 600.0f),
+			1.0f,
+			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR
+			);
 		for (auto e : elements) e->draw();
 		for (auto d : display) d->draw();
 	}
@@ -230,6 +236,10 @@ public:
 	}
 	void input_end(WPARAM wParam) { return; }
 };
+
+void load_menu_bitmaps() {
+	page_base = Graphics::bitmapFromFilename(L"ui_page_base.png");
+}
 
 Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called in run() in scripts.h
 	Menu* m = new Menu(VK_TAB);

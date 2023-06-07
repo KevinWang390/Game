@@ -68,7 +68,11 @@ void setup() {
 
 	// testing this out
 	Inventory::unpickle();
-	Inventory::pickle();
+	// Inventory::pickle();
+	Inventory::refresh_all();
+
+	// menu bitmaps
+	load_menu_bitmaps();
 }
 
 void run() {

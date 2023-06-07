@@ -47,5 +47,13 @@ public:
 		}
 		f.close();
 	}
+	static void refresh_all() {
+		for (auto& i : inventories) {
+			Inventory* inv = i.second;
+			for (auto& item : inv->items) {
+				inv->display_list.push_back(item);
+			}
+		}
+	}
 	static void update(unsigned int item, int mode, int val) {}; // update status of one item, looping through each Inventory
 };

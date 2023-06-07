@@ -167,6 +167,9 @@
     <Text Include="dialogue00.txt" />
     <Text Include="inventory.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\art\ui_page_base.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
