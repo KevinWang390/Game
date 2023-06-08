@@ -12,6 +12,14 @@ Additional dependencies: d2d1.lib, DWrite.lib, windowscodecs.lib
 
 SubSystem: Windows (/SUBSYSTEM:WINDOWS)
 
+## Additional Specifications
+
+Resolution: 600 by 800 pixels
+
+The artwork is done on a 300 by 800 canvas and scaled up using the Nearest Neighbor algorithm.
+
+Software used for artwork: Aseprite
+
 ## About
 
 This is an in-progress, 2D, top-down game built for Windows systems.
@@ -185,4 +193,6 @@ The menus are drawn using the same principle as with the dialogue with respect t
 Other than that, development is in-progress. Because I did not plan out the entire game before I started coding, I don't actually know *exactly* what will be required of my menu structure.
 
 Therefore, I plan on making the menu system more robust than I think it will need to be. I would rather have an overbuilt menu system rather than realize that what I have isn't enough 75% of the way through the development process when I get a new idea.
+
+You can see some in-progress stuff now. It is a mess.
 
