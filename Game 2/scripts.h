@@ -9,6 +9,7 @@
 #include "Transition.h"
 #include "Dialogue.h"
 #include "Inventory.h"
+#include "Loading.h"
 
 Player* Player::instance = nullptr;
 
@@ -55,7 +56,6 @@ void setup() {
 	init_trans();
 
 	Graphics::setSolidColorBrush(1.0, 0.0, 0.0, 1.0, "brush");
-	Graphics::setSolidColorBrush(1.0, 1.0, 1.0, 1.0, "white");
 	Graphics::setSolidColorBrush(0.0, 0.0, 0.0, 1.0, "black");
 	Graphics::setSolidColorBrush(0.0, 0.0, 1.0, 1.0, "blue");
 	Graphics::setSolidColorBrush(0.0, 1.0, 0.0, 1.0, "green");
@@ -67,8 +67,9 @@ void setup() {
 	Graphics::setSolidColorBrush(0.247f, 0.247f, 0.455f, 1.0f, "ui_dark");
 
 
-	Graphics::setTextFormat(L"Courier New", 20, "font");
-	Graphics::setTextFormat(L"Courier New", 35, "header");
+	Graphics::setTextFormat(L"game", 25, "font");
+	Graphics::setTextFormat(L"game", 40, "header");
+
 
 	// testing this out
 	Inventory::unpickle();

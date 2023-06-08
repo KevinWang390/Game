@@ -26,10 +26,15 @@ public:
 		//create text stuff (no text format)
 		h = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&wfactory));
 		rtarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_ALIASED);
+		AddFontResource(L"game.ttf");
 
 		//create WICFactory (for bitmaps);
 		h = CoInitialize(NULL);
-		h = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*)&wicfactory);		
+		h = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*)&wicfactory);
+
+		//some stuff for the loading screen
+		Graphics::setTextFormat(L"game", 64, "macro");
+		Graphics::setSolidColorBrush(1.0, 1.0, 1.0, 1.0, "white");
 	}
 
 	//begin and end

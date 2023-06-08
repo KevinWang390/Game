@@ -145,6 +145,7 @@
     <ClInclude Include="Entry.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Battle.h" />
+    <ClInclude Include="Loading.h" />
     <ClInclude Include="Inputable.h" />
     <ClInclude Include="InputController.h" />
     <ClInclude Include="Inventory.h" />
@@ -172,6 +173,9 @@
     <Image Include="ui_button.png" />
     <Image Include="ui_table.png" />
     <Image Include="ui_table_select.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="game.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

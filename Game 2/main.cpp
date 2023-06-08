@@ -40,12 +40,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLn, 
 	HWND hWnd = CreateWindowEx(NULL, L"WindowClass", L"Game", WS_OVERLAPPEDWINDOW,
 		100, 100, rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, hInstance, NULL);
 
-	// initialization and setup
+	//hide cursor
+	ShowCursor(false);
+
+	//initialization Graphics
 	Graphics::init(hWnd);
-	setup();
 
 	//show window
 	ShowWindow(hWnd, nCmdShow);
+
+	//build game
+	start_load();
+	std::thread t(draw_loading_screen_init);
+	setup();
+	end_load();
+	t.join();
+
+
+
 
 	//main loop
 	MSG msg = {};

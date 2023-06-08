@@ -112,6 +112,15 @@ public:
 class Overlay : public PageElement {}; // TODO: know how to do this
 
 // IMPORTANT: Inventory::unpickle() must be run before any of these are created
+/* 
+* Note: Table is a PageElement, but it behaves more like a Page:
+* -- it receives and processes menu movement inputs
+* -- -- Page will check what_type(), then route input to the Table if appropriate
+* -- it takes up the whole page
+* -- it manages its own sub-units and is meant to be the only PageElement on the page
+* 
+* it is possible to add more PageElements to the page, if it becomes necessary
+*/
 class Table : public PageElement {
 	// stuff for linking to inventory
 	unsigned int item_code;
@@ -220,14 +229,14 @@ public:
 		Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
 			name.size(),
 			Graphics::getTextFormat("header"),
-			D2D1::RectF(50.0f, 50.0f, 300.0f, 100.0f),
+			D2D1::RectF(50.0f, 50.0f, 600.0f, 100.0f),
 			Graphics::getSolidColorBrush("ui_light"));
 		for (auto e : elements) e->draw();
 		for (auto d : display) d->draw();
 	}
 	void move_idx(WPARAM wParam) {
-		Table* t = dynamic_cast<Table*>(currentElement);
-		if (t) {
+		if (currentElement->what_type() == TABLE) {
+			Table* t = (Table*)currentElement;
 			t->move(wParam);
 			return;
 		}

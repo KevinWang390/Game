@@ -57,6 +57,9 @@
     <ClInclude Include="Inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Loading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -99,5 +102,10 @@
     <Image Include="ui_table_select.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="game.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
 </Project>
