@@ -25,6 +25,7 @@ public:
 
 		//create text stuff (no text format)
 		h = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&wfactory));
+		rtarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_ALIASED);
 
 		//create WICFactory (for bitmaps);
 		h = CoInitialize(NULL);
@@ -50,7 +51,7 @@ public:
 	}
 	static void setTextFormat(const wchar_t* font, float size, std::string name) {
 		IDWriteTextFormat* txtformat;
-		wfactory->CreateTextFormat(font, NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, size, L"en-us", &txtformat);
+		wfactory->CreateTextFormat(font, NULL, DWRITE_FONT_WEIGHT_MEDIUM, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, size, L"en-us", &txtformat);
 		textFormats.emplace(name, txtformat);
 	}
 	static IDWriteTextFormat* getTextFormat(std::string name) {

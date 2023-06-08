@@ -9,13 +9,18 @@
 #include "Inventory.h"
 
 #define LINK 1
+#define TABLE 2
 
 // TODO: UI bitmaps will be global values, classes will draw them, will need function to load from file
-ID2D1Bitmap* page_base;
+ID2D1Bitmap* ui_page_base;
+ID2D1Bitmap* ui_button;
+ID2D1Bitmap* ui_table;
+ID2D1Bitmap* ui_table_select;
 
 class Page;
 class Overlay;
 class Menu;
+class Table;
 
 class PageElement {
 	bool selected;
@@ -53,22 +58,27 @@ public:
 	int what_type() override { return LINK; }
 	void* click() override { return (void*)target; }
 	void draw() override {
-		Graphics::rtarget->FillRoundedRectangle(D2D1::RoundedRect(
-			D2D1::RectF(x, y, x + 100.0f, y + 50.0f), 10.0f, 10.0f),
-			Graphics::getSolidColorBrush("yellow"));
-		if (selected) Graphics::rtarget->DrawRoundedRectangle(D2D1::RoundedRect(
-			D2D1::RectF(x, y, x + 100.0f, y + 50.0f), 10.0f, 10.0f),
-			Graphics::getSolidColorBrush("blue"), 
-			2.0f);
+		D2D1_RECT_F source;
+		if (selected) source = D2D1::RectF(0.0f, 30.0f, 110.0f, 60.0f);
+		else source = D2D1::RectF(0.0f, 0.0f, 110.0f, 30.0f);
+		Graphics::rtarget->DrawBitmap(
+			ui_button,
+			D2D1::RectF(x, y, x + 220.0f, y + 60.0f),
+			1.0f,
+			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+			source
+		);
+		Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
+			name.size(),
+			Graphics::getTextFormat("font"),
+			D2D1::RectF(x+20.0f, y+18.0f, x+200.0f, y+60.0f),
+			Graphics::getSolidColorBrush("ui_dark"));
 	} // TODO: draw code goes here
 };
 
 class Button : public PageElement {}; // will likely need to invoke some other file for game-affecting functions
 
 class Tab : public PageElement {}; // TODO: decide if I need this at all
-
-// table for the various inventories
-class Table : public PageElement {}; // TODO: maybe this should be a Page?
 
 // Textbox
 std::unordered_map<std::string, std::string> master_text; // stores text fields, will need to be pickled and unpickled
@@ -101,6 +111,69 @@ public:
 
 class Overlay : public PageElement {}; // TODO: know how to do this
 
+// IMPORTANT: Inventory::unpickle() must be run before any of these are created
+class Table : public PageElement {
+	// stuff for linking to inventory
+	unsigned int item_code;
+	std::vector<std::pair<unsigned int, int>>* items;
+
+	// stuff for display
+	int idx_x, idx_y;
+	D2D1_RECT_F select_src;
+
+	friend class Menu;
+public:
+	Table() {
+		item_code = 0;
+		items = nullptr;
+		idx_x = idx_y = 0;
+		select_src = D2D1::RectF(40.0f, 136.0f, 108.0f, 204.0f);
+	};
+	Table(std::string n) : PageElement(0.0f, 0.0f, n) {
+		item_code = 0;
+		items = nullptr;
+		idx_x = idx_y = 0;
+		select_src = D2D1::RectF(40.0f, 136.0f, 108.0f, 204.0f);
+	}
+	int what_type() override { return TABLE; }
+	void* click() override { return nullptr; } // TODO
+	void draw() override {
+		Graphics::rtarget->DrawBitmap(
+			ui_table,
+			D2D1::RectF(0.0f, 0.0f, 800.0f, 600.0f),
+			1.0f,
+			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+		Graphics::rtarget->DrawBitmap(
+			ui_table_select,
+			select_src,
+			1.0f,
+			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+	}
+	void move(WPARAM wParam) { // moving around the table
+		switch (wParam) {
+		case VK_W:
+			idx_y--; break;
+		case VK_A:
+			idx_x--; break;
+		case VK_S:
+			idx_y++; break;
+		case VK_D:
+			idx_x++; break;
+		default:
+			break;
+		}
+
+		if (idx_x == 5) idx_x = 0;
+		else if (idx_x == -1) idx_x = 4;
+		if (idx_y == 6) idx_y = 0;
+		else if (idx_y == -1) idx_y = 5;
+
+		float src_left = 40.0f + 70.0f * idx_x;
+		float src_top = 136.0f + 70.0f * idx_y;
+		select_src = D2D1::RectF(src_left, src_top, src_left + 68.0f, src_top + 68.0f);
+	}
+};
+
 class Page {
 	// parent class
 	std::string name;
@@ -111,6 +184,7 @@ class Page {
 	std::vector<PageElement*> display; // elements that should not be selected, e.g. images, text
 	Overlay* overlay; // the current overlay (will be nullptr if no overlay is active)
 
+	friend class Table;
 	friend class PageElement;
 	friend class Menu;
 public:
@@ -139,15 +213,24 @@ public:
 	}
 	void drawPage() {
 		Graphics::rtarget->DrawBitmap(
-			page_base,
+			ui_page_base,
 			D2D1::RectF(0.0f, 0.0f, 800.0f, 600.0f),
 			1.0f,
-			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR
-			);
+			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+		Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
+			name.size(),
+			Graphics::getTextFormat("header"),
+			D2D1::RectF(50.0f, 50.0f, 300.0f, 100.0f),
+			Graphics::getSolidColorBrush("ui_light"));
 		for (auto e : elements) e->draw();
 		for (auto d : display) d->draw();
 	}
 	void move_idx(WPARAM wParam) {
+		Table* t = dynamic_cast<Table*>(currentElement);
+		if (t) {
+			t->move(wParam);
+			return;
+		}
 		if (wParam == VK_W) {
 			if (element_idx == 0) element_idx = elements.size() - 1;
 			else element_idx--;
@@ -224,10 +307,15 @@ public:
 		case VK_E:
 			if (currentPage->elements.empty()) break;
 			type = currentPage->currentElement->what_type();
-			if (type == LINK) enter_page((Page*)(currentPage->currentElement->click()));
+			if (type == LINK) {
+				Page* p = (Page*)(currentPage->currentElement->click());
+				enter_page(p);
+			}
 			break;
 		case VK_W:
+		case VK_A:
 		case VK_S:
+		case VK_D:
 			currentPage->move_idx(wParam);
 			break;
 		default:
@@ -238,17 +326,42 @@ public:
 };
 
 void load_menu_bitmaps() {
-	page_base = Graphics::bitmapFromFilename(L"ui_page_base.png");
+	ui_page_base = Graphics::bitmapFromFilename(L"ui_page_base.png");
+	ui_button = Graphics::bitmapFromFilename(L"ui_button.png");
+	ui_table = Graphics::bitmapFromFilename(L"ui_table.png");
+	ui_table_select = Graphics::bitmapFromFilename(L"ui_table_select.png");
 }
 
 Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called in run() in scripts.h
 	Menu* m = new Menu(VK_TAB);
-	Page* p = new Page("entry", 0, nullptr);
-	Page* p2 = new Page("unnecessary", 1, nullptr);
-	p->add_element(new Link(p2, 30.0f, 30.0f, "dummy"));
-	p->add_element(new Link(nullptr, 30.0f, 100.0f, "dummy"));
-	p->add_element(new Link(nullptr, 30.0f, 170.0f, "dummy"));
-	m->add_page(p, true);
+
+	// DECLARATION
+	// declare base page
+	Page* base = new Page("Menu", 0, nullptr);
+
+	// declare inventory pages
+	Page* inv = new Page("Inventory", 1, nullptr);
+	Page* consum = new Page("Consumables", 2, nullptr);
+	Page* equip = new Page("Equipment", 3, nullptr);
+	Page* key = new Page("Key Items", 4, nullptr);
+
+	// declare status page
+	Page* stat = new Page("Party Status", 5, nullptr);
+
+	// ASSEMBLY
+	// assemble base
+	base->add_element(new Link(inv, 50.0f, 140.0f, "Inventory"));
+	base->add_element(new Link(stat, 50.0f, 220.0f, "Status"));
+	base->add_element(new Link(nullptr, 50.0f, 300.0f, "Game"));
+
+	// assemble inv
+	inv->add_element(new Link(consum, 50.0f, 140.0f, "Consumables"));
+	inv->add_element(new Link(equip, 50.0f, 220.0f, "Equipment"));
+	inv->add_element(new Link(key, 50.0f, 300.0f, "Key Items"));
+	consum->add_element(new Table("Consumables"));
+
+	// set menu entry
+	m->add_page(base, true);
 	return m;
 }
 

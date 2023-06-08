@@ -63,8 +63,12 @@ void setup() {
 	Graphics::setSolidColorBrush(1.0, 1.0, 0.0, 1.0, "yellow");
 	Graphics::setSolidColorBrush(0.0, 1.0, 1.0, 1.0, "teal");
 
+	Graphics::setSolidColorBrush(0.796f, 0.859f, 0.988f, 1.0f, "ui_light");
+	Graphics::setSolidColorBrush(0.247f, 0.247f, 0.455f, 1.0f, "ui_dark");
 
-	Graphics::setTextFormat(L"Consolas", 20, "font");
+
+	Graphics::setTextFormat(L"Courier New", 20, "font");
+	Graphics::setTextFormat(L"Courier New", 35, "header");
 
 	// testing this out
 	Inventory::unpickle();
