@@ -16,7 +16,7 @@ SubSystem: Windows (/SUBSYSTEM:WINDOWS)
 
 Resolution: 600 by 800 pixels
 
-The artwork is done on a 300 by 800 canvas and scaled up using the Nearest Neighbor algorithm.
+The artwork is done on a 300 by 400 canvas and scaled up using the Nearest Neighbor algorithm.
 
 Software used for artwork: Aseprite
 
