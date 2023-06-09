@@ -171,6 +171,7 @@
   <ItemGroup>
     <Image Include="..\..\..\art\ui_page_base.png" />
     <Image Include="ui_button.png" />
+    <Image Include="ui_item_restor.png" />
     <Image Include="ui_table.png" />
     <Image Include="ui_table_select.png" />
   </ItemGroup>

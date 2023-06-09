@@ -41,20 +41,35 @@ std::unordered_map<unsigned int, Inventory*> Inventory::inventories;
 void setup() {
 	player = new Player();
 
+	// load inventory system
+	Inventory::unpickle();
+	// Inventory::pickle();
+	Inventory::refresh_all();
+
+
+	// menu bitmaps
+	load_menu_bitmaps();
+
+	// build menus
 	menu = get_field_menu();
 
+	// build levels
 	bounds = new Bounds(0, "bounds.txt");
 	bounds1 = new Bounds(1, "bounds1.txt");
 	bounds2 = new Bounds(2, "bounds2.txt");
 	Bounds::go_to(0);
 
+	// bruh
 	dialogue_master = new Dialogue("i hate this", 0.0, 69.69f, 420.0, 0.0);
 
+	// attach stuff to InpuController
 	std::vector<Inputable*> v = { player, menu, dialogue_master };
 	InputController::init(v);
 
+	// initialize transition animation
 	init_trans();
 
+	// create animation resources
 	Graphics::setSolidColorBrush(1.0, 0.0, 0.0, 1.0, "brush");
 	Graphics::setSolidColorBrush(0.0, 0.0, 0.0, 1.0, "black");
 	Graphics::setSolidColorBrush(0.0, 0.0, 1.0, 1.0, "blue");
@@ -66,18 +81,9 @@ void setup() {
 	Graphics::setSolidColorBrush(0.796f, 0.859f, 0.988f, 1.0f, "ui_light");
 	Graphics::setSolidColorBrush(0.247f, 0.247f, 0.455f, 1.0f, "ui_dark");
 
-
 	Graphics::setTextFormat(L"game", 25, "font");
 	Graphics::setTextFormat(L"game", 40, "header");
 
-
-	// testing this out
-	Inventory::unpickle();
-	// Inventory::pickle();
-	Inventory::refresh_all();
-
-	// menu bitmaps
-	load_menu_bitmaps();
 }
 
 void run() {

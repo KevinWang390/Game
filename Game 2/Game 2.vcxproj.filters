@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\ui_bitmap">
+      <UniqueIdentifier>{0b58305b-1c18-447e-a11a-66c22f626353}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
@@ -90,17 +93,20 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\art\ui_page_base.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="ui_button.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\ui_bitmap</Filter>
+    </Image>
+    <Image Include="ui_item_restor.png">
+      <Filter>Resource Files\ui_bitmap</Filter>
+    </Image>
+    <Image Include="..\..\..\art\ui_page_base.png">
+      <Filter>Resource Files\ui_bitmap</Filter>
     </Image>
     <Image Include="ui_table.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\ui_bitmap</Filter>
     </Image>
     <Image Include="ui_table_select.png">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\ui_bitmap</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

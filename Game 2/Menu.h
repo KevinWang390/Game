@@ -16,6 +16,7 @@ ID2D1Bitmap* ui_page_base;
 ID2D1Bitmap* ui_button;
 ID2D1Bitmap* ui_table;
 ID2D1Bitmap* ui_table_select;
+ID2D1Bitmap* ui_item_restor;
 
 class Page;
 class Overlay;
@@ -111,7 +112,7 @@ public:
 
 class Overlay : public PageElement {}; // TODO: know how to do this
 
-// IMPORTANT: Inventory::unpickle() must be run before any of these are created
+// IMPORTANT: Inventory::unpickle() must be run before any of these are created, else will crash
 /* 
 * Note: Table is a PageElement, but it behaves more like a Page:
 * -- it receives and processes menu movement inputs
@@ -123,25 +124,28 @@ class Overlay : public PageElement {}; // TODO: know how to do this
 */
 class Table : public PageElement {
 	// stuff for linking to inventory
-	unsigned int item_code;
-	std::vector<std::pair<unsigned int, int>>* items;
+	unsigned int item_type;
+	std::vector<std::pair<unsigned int, int>> *items;
+	ID2D1Bitmap* item_src_bitmap;
 
 	// stuff for display
-	int idx_x, idx_y;
+	int idx, idx_x, idx_y;
 	D2D1_RECT_F select_src;
 
 	friend class Menu;
 public:
 	Table() {
-		item_code = 0;
-		items = nullptr;
-		idx_x = idx_y = 0;
+		item_type = 0;
+		items = {};
+		item_src_bitmap = nullptr;
+		idx = idx_x = idx_y = 0;
 		select_src = D2D1::RectF(40.0f, 136.0f, 108.0f, 204.0f);
 	};
-	Table(std::string n) : PageElement(0.0f, 0.0f, n) {
-		item_code = 0;
-		items = nullptr;
-		idx_x = idx_y = 0;
+	Table(std::string n, unsigned int it, ID2D1Bitmap* isrc) : PageElement(0.0f, 0.0f, n) {
+		item_type = it;
+		items = &(Inventory::inventories[it]->display_list);
+		item_src_bitmap = isrc;
+		idx = idx_x = idx_y = 0;
 		select_src = D2D1::RectF(40.0f, 136.0f, 108.0f, 204.0f);
 	}
 	int what_type() override { return TABLE; }
@@ -157,6 +161,29 @@ public:
 			select_src,
 			1.0f,
 			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+		int i = 0;
+		for (auto item : *items) {
+			// determine bitmap source from low-word of item code
+			int src_idx = (item.first & 0xff) - 1;
+			float src_left = (src_idx % 5) * 32.0f;
+			float src_top = (src_idx / 5) * 32.0f;
+			D2D1_RECT_F src = D2D1::RectF(src_left, src_top, src_left + 32.0f, src_top + 32.0f);
+			// determine draw destination from number
+			float dest_left = 40.0f + (i % 5) * 70.0f;
+			float dest_top = 136.0f + (i / 5) * 70.0f;
+			i++;
+			D2D1_RECT_F dest = D2D1::RectF(dest_left, dest_top, dest_left + 64.0f, dest_top + 64.0f);
+			Graphics::rtarget->DrawBitmap(
+				item_src_bitmap,
+				dest,
+				1.0f,
+				D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+				src
+			);
+		}
+		if (idx < items->size()) {
+			// TODO: draw the item details
+		}
 	}
 	void move(WPARAM wParam) { // moving around the table
 		switch (wParam) {
@@ -176,6 +203,8 @@ public:
 		else if (idx_x == -1) idx_x = 4;
 		if (idx_y == 6) idx_y = 0;
 		else if (idx_y == -1) idx_y = 5;
+
+		idx = idx_x + 5 * idx_y; // will be used for accessing item list
 
 		float src_left = 40.0f + 70.0f * idx_x;
 		float src_top = 136.0f + 70.0f * idx_y;
@@ -339,6 +368,7 @@ void load_menu_bitmaps() {
 	ui_button = Graphics::bitmapFromFilename(L"ui_button.png");
 	ui_table = Graphics::bitmapFromFilename(L"ui_table.png");
 	ui_table_select = Graphics::bitmapFromFilename(L"ui_table_select.png");
+	ui_item_restor = Graphics::bitmapFromFilename(L"ui_item_restor.png");
 }
 
 Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called in run() in scripts.h
@@ -367,7 +397,7 @@ Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called
 	inv->add_element(new Link(consum, 50.0f, 140.0f, "Consumables"));
 	inv->add_element(new Link(equip, 50.0f, 220.0f, "Equipment"));
 	inv->add_element(new Link(key, 50.0f, 300.0f, "Key Items"));
-	consum->add_element(new Table("Consumables"));
+	consum->add_element(new Table("Consumables", 0b00010001, ui_item_restor));
 
 	// set menu entry
 	m->add_page(base, true);

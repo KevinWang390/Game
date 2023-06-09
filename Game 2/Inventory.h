@@ -14,6 +14,8 @@ class Inventory { // there is no master inventory for now
 	std::vector<std::pair<unsigned int, int>> display_list; // has only the nonzero items with specific type_header, must be loaded from master
 	std::unordered_map<unsigned int, int> items;
 	static std::unordered_map<unsigned int, Inventory*> inventories; // maps header to appropriate inventory
+
+	friend class Table;
 public:
 	static void unpickle() { // read items from file
 		std::ifstream f;
@@ -50,10 +52,16 @@ public:
 	static void refresh_all() {
 		for (auto& i : inventories) {
 			Inventory* inv = i.second;
+			inv->display_list.clear();
 			for (auto& item : inv->items) {
-				inv->display_list.push_back(item);
+				if (item.second) inv->display_list.push_back(item);
 			}
 		}
 	}
-	static void update(unsigned int item, int mode, int val) {}; // update status of one item, looping through each Inventory
+	static void update(unsigned int item, int mode, int val) {}; // TODO: update status of one item, looping through each Inventory
 };
+
+// item descriptions
+std::unordered_map<unsigned int, std::wstring> item_descriptions = {
+
+}
