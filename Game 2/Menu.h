@@ -182,7 +182,44 @@ public:
 			);
 		}
 		if (idx < items->size()) {
-			// TODO: draw the item details
+			int item_code = (*items)[idx].first;
+			int amount = (*items)[idx].second;
+			if (item_descriptions.find(item_code) == item_descriptions.end()) return;
+			Graphics::rtarget->DrawTextW(
+				item_descriptions[item_code].c_str(),
+				item_descriptions[item_code].size(),
+				Graphics::getTextFormat("small"),
+				D2D1::RectF(430.0f, 370.0f, 750.0f, 550.0f),
+				Graphics::getSolidColorBrush("ui_light")
+			);
+			int src_idx = (item_code & 0xff) - 1;
+			float src_left = (src_idx % 5) * 32.0f;
+			float src_top = (src_idx / 5) * 32.0f;
+			D2D1_RECT_F src = D2D1::RectF(src_left, src_top, src_left + 32.0f, src_top + 32.0f);
+			Graphics::rtarget->DrawBitmap(
+				item_src_bitmap,
+				D2D1::RectF(380.0f, 100.0f, 636.0f, 356.0f),
+				1.0f,
+				D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+				src
+			);
+			std::wstring amount_string = L"Held: " + std::to_wstring(amount);
+			Graphics::rtarget->DrawTextW(
+				amount_string.c_str(),
+				amount_string.size(),
+				Graphics::getTextFormat("font"),
+				D2D1::RectF(630.0f, 290.0f, 750.0f, 330.0f),
+				Graphics::getSolidColorBrush("ui_light")
+			);
+		}
+		else {
+			Graphics::rtarget->DrawTextW(
+				L"NONE",
+				4,
+				Graphics::getTextFormat("small"),
+				D2D1::RectF(420.0f, 370.0f, 750.0f, 550.0f),
+				Graphics::getSolidColorBrush("ui_light")
+			);
 		}
 	}
 	void move(WPARAM wParam) { // moving around the table

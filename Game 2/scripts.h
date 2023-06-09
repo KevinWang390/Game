@@ -83,6 +83,7 @@ void setup() {
 
 	Graphics::setTextFormat(L"game", 25, "font");
 	Graphics::setTextFormat(L"game", 40, "header");
+	Graphics::setTextFormat(L"game", 20, "small");
 
 }
 
