@@ -13,7 +13,7 @@
 
 Player* Player::instance = nullptr;
 
-int InputController::mode = 0;
+int InputController::mode = MAIN_MENU; // this is the main menu mode
 std::vector<Inputable*> InputController::members;
 std::unordered_set<WPARAM> InputController::mode_keys;
 
@@ -28,7 +28,8 @@ std::wstring Dialogue::text;
 D2D1_MATRIX_3X2_F Dialogue::transform;
 
 Player* player;
-Menu* menu;
+Menu* field_menu;
+Menu* main_menu;
 InputController* ic;
 Bounds* bounds;
 Bounds* bounds1;
@@ -51,7 +52,9 @@ void setup() {
 	load_menu_bitmaps();
 
 	// build menus
-	menu = get_field_menu();
+	field_menu = get_field_menu();
+	main_menu = get_main_menu();
+	main_menu->input_start(MAIN_MENU); // manually enter the main menu
 
 	// build levels
 	bounds = new Bounds(0, "bounds.txt");
@@ -62,8 +65,8 @@ void setup() {
 	// bruh
 	dialogue_master = new Dialogue("i hate this", 0.0, 69.69f, 420.0, 0.0);
 
-	// attach stuff to InpuController
-	std::vector<Inputable*> v = { player, menu, dialogue_master };
+	// attach stuff to InputController
+	std::vector<Inputable*> v = { player, field_menu, main_menu, dialogue_master };
 	InputController::init(v);
 
 	// initialize transition animation
@@ -84,6 +87,7 @@ void setup() {
 	Graphics::setTextFormat(L"Game-2.2", 27, "font");
 	Graphics::setTextFormat(L"Game-2.2", 45, "header");
 	Graphics::setTextFormat(L"Game-2.2", 18, "small");
+	Graphics::setTextFormat(L"Game-2.2", 81, "ultramax");
 
 }
 
@@ -94,6 +98,7 @@ void run() {
 	player->move_cam();
 	player->draw();
 	Dialogue::draw_s();
-	menu->draw();
+	field_menu->draw();
+	main_menu->draw();
 	run_trans();
 }

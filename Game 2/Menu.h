@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 #include "Graphics.h"
 #include "Inputable.h"
@@ -10,6 +11,8 @@
 
 #define LINK 1
 #define TABLE 2
+#define STAT_TEXT 3
+#define BUTTON 4
 
 // UI bitmaps will be global values, classes will draw them, will need function to load from file
 ID2D1Bitmap* ui_page_base;
@@ -24,7 +27,6 @@ ID2D1Bitmap* ui_item_restor;
 
 // parts of the menu object
 class Page;
-class Overlay;
 class Menu;
 class Table;
 
@@ -36,6 +38,8 @@ class PageElement {
 	friend class Menu;
 	friend class Page;
 	friend class Link;
+	friend class Button;
+	friend class StaticText;
 public:
 	PageElement() {
 		selected = false;
@@ -79,28 +83,98 @@ public:
 			Graphics::getTextFormat("font"),
 			D2D1::RectF(x+20.0f, y+18.0f, x+200.0f, y+60.0f),
 			Graphics::getSolidColorBrush("ui_dark"));
-	} // TODO: draw code goes here
+	}
 };
 
-class Button : public PageElement {}; // will likely need to invoke some other file for game-affecting functions
+class Button : public PageElement {
+	void (*func)();
+public:
+	Button() {
+		func = nullptr;
+	}
+	Button(void(*f)(), float xpos, float ypos, std::string n) : PageElement(xpos, ypos, n) {
+		func = f;
+	}
+	int what_type() override { return BUTTON; }
+	void* click() override {
+		if (func) func();
+		return nullptr;
+	}
+	void draw() override {
+		D2D1_RECT_F source;
+		if (selected) source = D2D1::RectF(0.0f, 60.0f, 110.0f, 90.0f);
+		else source = D2D1::RectF(0.0f, 0.0f, 110.0f, 30.0f);
+		Graphics::rtarget->DrawBitmap(
+			ui_button,
+			D2D1::RectF(x, y, x + 220.0f, y + 60.0f),
+			1.0f,
+			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
+			source
+		);
+		Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
+			(UINT32)name.size(),
+			Graphics::getTextFormat("font"),
+			D2D1::RectF(x + 20.0f, y + 18.0f, x + 200.0f, y + 60.0f),
+			Graphics::getSolidColorBrush("ui_dark"));
+	}
+}; // fuck it, but the functions in this file as well
 
 class Tab : public PageElement {}; // TODO: decide if I need this at all
 
-// Textbox
-std::unordered_map<std::string, std::string> master_text; // stores text fields, will need to be pickled and unpickled
+/* Text 
+* Note, they are only meant to be put in a page's display list
+* While these objects are technically able to be selected and clicked on,
+* there is no reason to do it; there's no related functionality
+*/
 
-class Textbox : public PageElement { // TODO: implement this
+// Static Text
+// the text to be written is specified when the constructor is called and is constant
+
+class StaticText : public PageElement {
+	std::wstring text;
+	std::string textFormat;
+	float xs, ys;
+public:
+	StaticText() {
+		text = L"";
+		textFormat = "";
+	}
+	StaticText(std::wstring t, std::string tf, float xpos, float ypos, float x_size, float y_size, std::string n) 
+		: PageElement(xpos, ypos, n) {
+		text = t;
+		textFormat = tf;
+		xs = x_size;
+		ys = y_size;
+	}
+	int what_type() override { return STAT_TEXT; }
+	void* click() override { return nullptr; }
+	void draw() override {
+		Graphics::rtarget->DrawTextW(
+			text.c_str(),
+			text.size(),
+			Graphics::getTextFormat(textFormat),
+			D2D1::RectF(x, y, x + xs, y + ys),
+			Graphics::getSolidColorBrush("ui_light")
+		);
+	}
+};
+
+// Dynamic Text
+// stores text fields that change upon runtime, will need to be pickled and unpickled
+std::unordered_map<std::string, std::string> master_text;
+
+class DynamicText : public PageElement { // TODO: implement this
 	std::string label;
 	std::string value;
-	static std::vector<Textbox*> textboxes;
+	static std::vector<DynamicText*> textboxes;
 public:
-	Textbox() {};
+	DynamicText() {};
 	void update() {};
 	static void update_all() {};
 	void draw() {};
 };
 
-std::vector<Textbox*> Textbox::textboxes = {};
+std::vector<DynamicText*> DynamicText::textboxes = {};
 
 // Image : does not need master unordered_map
 
@@ -114,8 +188,6 @@ public:
 	};
 	void draw() {};
 }; // does nothing
-
-class Overlay : public PageElement {}; // TODO: know how to do this
 
 // IMPORTANT: Inventory::unpickle() must be run before any of these are created, else will crash
 /* 
@@ -262,14 +334,14 @@ public:
 };
 
 class Page {
-	// parent class
 	std::string name;
 	int ID; // dunno what i'm gonna use this for
 	int element_idx;
 	PageElement* currentElement; // current page element selected
 	std::vector<PageElement*> elements; // elements that should be selected, element 0 will be the entry element
 	std::vector<PageElement*> display; // elements that should not be selected, e.g. images, text
-	Overlay* overlay; // the current overlay (will be nullptr if no overlay is active)
+
+	bool full; // whether or not to cover the whole screen
 
 	friend class Table;
 	friend class PageElement;
@@ -281,16 +353,15 @@ public:
 		element_idx = 0;
 		currentElement = nullptr;
 		elements = display = {};
-		overlay = nullptr;
 	}
-	Page(std::string n, int id, Overlay* o) {
+	Page(std::string n, int id, bool f) {
 		name = n;
 		ID = id;
 		element_idx = 0;
 		elements = display = {};
-		overlay = o;
 		if (elements.size()) currentElement = elements[0];
 		else currentElement = nullptr;
+		full = f;
 	}
 	void add_element(PageElement* e) {
 		elements.push_back(e);
@@ -299,16 +370,20 @@ public:
 		display.push_back(d);
 	}
 	void drawPage() {
-		Graphics::rtarget->DrawBitmap(
-			ui_page_base,
-			D2D1::RectF(0.0f, 0.0f, 800.0f, 600.0f),
-			1.0f,
-			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
-		Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
-			(UINT32)name.size(),
-			Graphics::getTextFormat("header"),
-			D2D1::RectF(50.0f, 50.0f, 600.0f, 100.0f),
-			Graphics::getSolidColorBrush("ui_light"));
+		if (full)
+			Graphics::rtarget->Clear(D2D1::ColorF(0.247f, 0.247f, 0.455f, 1.0f));
+		else {
+			Graphics::rtarget->DrawBitmap(
+				ui_page_base,
+				D2D1::RectF(0.0f, 0.0f, 800.0f, 600.0f),
+				1.0f,
+				D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
+			Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
+				(UINT32)name.size(),
+				Graphics::getTextFormat("header"),
+				D2D1::RectF(50.0f, 50.0f, 600.0f, 100.0f),
+				Graphics::getSolidColorBrush("ui_light"));
+		}
 		for (auto e : elements) e->draw();
 		for (auto d : display) d->draw();
 	}
@@ -367,7 +442,7 @@ public:
 	}
 	void back_out() { // pops current page off the stack and goes to next; if none, then exits
 		backtrace.pop_back();
-		if (backtrace.empty()) InputController::change_mode(VK_TAB);
+		if (backtrace.empty()) InputController::change_mode(mode);
 		else {
 			currentPage = backtrace.back();
 			currentPage->currentElement->selected = true;
@@ -382,12 +457,13 @@ public:
 	}
 	void input_start(WPARAM wParam) {
 		if (InputController::get_mode() != mode) return;
-		int type;
-		switch (wParam) {
-		case VK_TAB:
+		if (wParam == mode) { // this doesn't fit in switch stmt b/c non-constant
 			backtrace.clear();
 			enter_page(entryPage);
-			break;
+			return;
+		}
+		int type;
+		switch (wParam) {
 		case VK_Q:
 			back_out();
 			break;
@@ -398,6 +474,7 @@ public:
 				Page* p = (Page*)(currentPage->currentElement->click());
 				enter_page(p);
 			}
+			else currentPage->currentElement->click();
 			break;
 		case VK_W:
 		case VK_A:
@@ -421,22 +498,29 @@ void load_menu_bitmaps() {
 	ui_item_restor = Graphics::bitmapFromFilename(L"ui_item_restor.png");
 }
 
+/* Menu button functions
+*/
+
+void exit_main() {
+	InputController::change_mode(0x103);
+}
+
 // build and get the field menu
 Menu* get_field_menu() {
 	Menu* m = new Menu(VK_TAB);
 
 	// DECLARATION
 	// declare base page
-	Page* base = new Page("Menu", 0, nullptr);
+	Page* base = new Page("Menu", 0, false);
 
 	// declare inventory pages
-	Page* inv = new Page("Inventory", 1, nullptr);
-	Page* consum = new Page("Consumables", 2, nullptr);
-	Page* equip = new Page("Equipment", 3, nullptr);
-	Page* key = new Page("Key Items", 4, nullptr);
+	Page* inv = new Page("Inventory", 1, false);
+	Page* consum = new Page("Consumables", 2, false);
+	Page* equip = new Page("Equipment", 3, false);
+	Page* key = new Page("Key Items", 4, false);
 
 	// declare status page
-	Page* stat = new Page("Party Status", 5, nullptr);
+	Page* stat = new Page("Party Status", 5, false);
 
 	// ASSEMBLY
 	// assemble base
@@ -457,8 +541,24 @@ Menu* get_field_menu() {
 
 // TODO: main menu builder function
 Menu* get_main_menu() {
-	Menu* m = new Menu(-1);
+	Menu* m = new Menu(MAIN_MENU);
 
+	// DECLARATION
+	// declare base page
+
+	Page* entry = new Page("Main", 101, true);
+
+	// ASSEMBLY
+	// assemble base page
+
+	std::wstring title = L"KNSE";
+	entry->add_display(new StaticText(title,"ultramax", 300.0f, 150.0f, 300.0f, 200.0f, "title"));
+	entry->add_element(new Button(&exit_main, 300.0f, 320.0f, "New Game"));
+	entry->add_element(new Button(nullptr, 300.0f, 400.0f, "Load Game"));
+	entry->add_element(new Button(nullptr, 300.0f, 480.0f, "Quit"));
+
+
+	m->add_page(entry, true);
 	return m;
 }
 	

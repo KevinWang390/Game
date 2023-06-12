@@ -14,12 +14,13 @@
 
 #define TRANSITION 0x101
 #define DIALOGUE 0x102
+#define MAIN_MENU 0x103
 
 class InputController {
 public: 
 	InputController() {}
 	static void init(std::vector<Inputable*> &v) {
-		mode_keys = {VK_TAB, VK_ESCAPE, TRANSITION, DIALOGUE};
+		mode_keys = {VK_TAB, VK_ESCAPE, TRANSITION, DIALOGUE, MAIN_MENU};
 		members = v;
 	}
 	static void receive_keyup(WPARAM wParam) {
