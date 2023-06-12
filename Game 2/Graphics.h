@@ -26,14 +26,14 @@ public:
 		//create text stuff (no text format)
 		h = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), reinterpret_cast<IUnknown**>(&wfactory));
 		rtarget->SetTextAntialiasMode(D2D1_TEXT_ANTIALIAS_MODE_ALIASED);
-		AddFontResource(L"game.ttf");
+		AddFontResource(L"game-2-2.ttf");
 
 		//create WICFactory (for bitmaps);
 		h = CoInitialize(NULL);
 		h = CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory, (LPVOID*)&wicfactory);
 
 		//some stuff for the loading screen
-		Graphics::setTextFormat(L"game", 64, "macro");
+		Graphics::setTextFormat(L"Game-2.2", 63, "macro");
 		Graphics::setSolidColorBrush(1.0, 1.0, 1.0, 1.0, "white");
 	}
 
@@ -56,7 +56,7 @@ public:
 	}
 	static void setTextFormat(const wchar_t* font, float size, std::string name) {
 		IDWriteTextFormat* txtformat;
-		wfactory->CreateTextFormat(font, NULL, DWRITE_FONT_WEIGHT_MEDIUM, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, size, L"en-us", &txtformat);
+		wfactory->CreateTextFormat(font, NULL, DWRITE_FONT_WEIGHT_REGULAR, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, size, L"en-us", &txtformat);
 		textFormats.emplace(name, txtformat);
 	}
 	static IDWriteTextFormat* getTextFormat(std::string name) {

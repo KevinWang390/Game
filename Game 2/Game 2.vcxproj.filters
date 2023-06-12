@@ -110,7 +110,7 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <Font Include="game.ttf">
+    <Font Include="game-2-2.ttf">
       <Filter>Resource Files</Filter>
     </Font>
   </ItemGroup>

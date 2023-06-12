@@ -11,13 +11,18 @@
 #define LINK 1
 #define TABLE 2
 
-// TODO: UI bitmaps will be global values, classes will draw them, will need function to load from file
+// UI bitmaps will be global values, classes will draw them, will need function to load from file
 ID2D1Bitmap* ui_page_base;
 ID2D1Bitmap* ui_button;
 ID2D1Bitmap* ui_table;
 ID2D1Bitmap* ui_table_select;
 ID2D1Bitmap* ui_item_restor;
 
+// TODO
+// global consumable and equipment handlers
+
+
+// parts of the menu object
 class Page;
 class Overlay;
 class Menu;
@@ -70,7 +75,7 @@ public:
 			source
 		);
 		Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
-			name.size(),
+			(UINT32)name.size(),
 			Graphics::getTextFormat("font"),
 			D2D1::RectF(x+20.0f, y+18.0f, x+200.0f, y+60.0f),
 			Graphics::getSolidColorBrush("ui_dark"));
@@ -187,7 +192,7 @@ public:
 			if (item_descriptions.find(item_code) == item_descriptions.end()) return;
 			Graphics::rtarget->DrawTextW(
 				item_descriptions[item_code].c_str(),
-				item_descriptions[item_code].size(),
+				(UINT32)item_descriptions[item_code].size(),
 				Graphics::getTextFormat("small"),
 				D2D1::RectF(430.0f, 370.0f, 750.0f, 550.0f),
 				Graphics::getSolidColorBrush("ui_light")
@@ -206,9 +211,16 @@ public:
 			std::wstring amount_string = L"Held: " + std::to_wstring(amount);
 			Graphics::rtarget->DrawTextW(
 				amount_string.c_str(),
-				amount_string.size(),
+				(UINT32)amount_string.size(),
 				Graphics::getTextFormat("font"),
 				D2D1::RectF(630.0f, 290.0f, 750.0f, 330.0f),
+				Graphics::getSolidColorBrush("ui_light")
+			);
+			Graphics::rtarget->DrawTextW(
+				item_names[item_code].c_str(),
+				(UINT32)item_names[item_code].size(),
+				Graphics::getTextFormat("font"),
+				D2D1::RectF(570.0f, 150.0f, 750.0f, 190.0f),
 				Graphics::getSolidColorBrush("ui_light")
 			);
 		}
@@ -293,7 +305,7 @@ public:
 			1.0f,
 			D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR);
 		Graphics::rtarget->DrawTextW(std::wstring(name.begin(), name.end()).c_str(),
-			name.size(),
+			(UINT32)name.size(),
 			Graphics::getTextFormat("header"),
 			D2D1::RectF(50.0f, 50.0f, 600.0f, 100.0f),
 			Graphics::getSolidColorBrush("ui_light"));
@@ -307,7 +319,7 @@ public:
 			return;
 		}
 		if (wParam == VK_W) {
-			if (element_idx == 0) element_idx = elements.size() - 1;
+			if (element_idx == 0) element_idx = (int)elements.size() - 1;
 			else element_idx--;
 		}
 		else if (wParam == VK_S) {
@@ -400,6 +412,7 @@ public:
 	void input_end(WPARAM wParam) { return; }
 };
 
+// load in global bitmaps from the png files
 void load_menu_bitmaps() {
 	ui_page_base = Graphics::bitmapFromFilename(L"ui_page_base.png");
 	ui_button = Graphics::bitmapFromFilename(L"ui_button.png");
@@ -408,7 +421,8 @@ void load_menu_bitmaps() {
 	ui_item_restor = Graphics::bitmapFromFilename(L"ui_item_restor.png");
 }
 
-Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called in run() in scripts.h
+// build and get the field menu
+Menu* get_field_menu() {
 	Menu* m = new Menu(VK_TAB);
 
 	// DECLARATION
@@ -441,3 +455,10 @@ Menu* get_field_menu() { // TODO: hardcode the menu creator, this will be called
 	return m;
 }
 
+// TODO: main menu builder function
+Menu* get_main_menu() {
+	Menu* m = new Menu(-1);
+
+	return m;
+}
+	
